@@ -17,7 +17,7 @@
 
 ## 📋 Sobre o Projeto
 
-O **OLT Command Manager** é uma aplicação desktop desenvolvida em Python que facilita o gerenciamento e execução de comandos para equipamentos OLT (Optical Line Terminal) de diferentes fabricantes. Com uma interface moderna e intuitiva, o programa oferece uma solução completa para técnicos e engenheiros de telecomunicações.
+O **OLT Command Manager** é uma aplicação desktop desenvolvida em Python que facilita o gerenciamento e execução de comandos para equipamentos OLT de diferentes fabricantes. Com uma interface moderna e intuitiva, o programa oferece uma solução completa para técnicos e engenheiros de telecomunicações.
 
 ### 🎯 Problema Resolvido
 
