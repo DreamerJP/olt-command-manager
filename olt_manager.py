@@ -89,7 +89,14 @@ class CommandDocumentation:
 class CommandHistory:
     def __init__(self):
         self.history = []
-        self.history_file = "command_history.json"
+        # Definir caminho do arquivo de histórico
+        if hasattr(sys, "_MEIPASS"):
+            # Se estiver rodando como executável PyInstaller
+            exe_dir = os.path.dirname(sys.executable)
+            self.history_file = os.path.join(exe_dir, "command_history.json")
+        else:
+            # Se estiver rodando como script
+            self.history_file = "command_history.json"
         self.load_history()
 
     def add_command(self, command, olt_model, category):
@@ -131,7 +138,14 @@ class CommandHistory:
 class FavoriteCommands:
     def __init__(self):
         self.favorites = []
-        self.favorites_file = "favorite_commands.json"
+        # Definir caminho do arquivo de favoritos
+        if hasattr(sys, "_MEIPASS"):
+            # Se estiver rodando como executável PyInstaller
+            exe_dir = os.path.dirname(sys.executable)
+            self.favorites_file = os.path.join(exe_dir, "favorite_commands.json")
+        else:
+            # Se estiver rodando como script
+            self.favorites_file = "favorite_commands.json"
         self.load_favorites()
 
     def add_favorite(self, command, name, olt_model, category, params=None):
@@ -174,7 +188,7 @@ class FavoriteCommands:
 class OLTCommandManager:
     def __init__(self, root):
         self.root = root
-        self.root.title("OLT Command Manager v2.0")
+        self.root.title("OLT Command Manager v1.5")
         self.root.geometry("1200x800")
 
         try:
@@ -194,7 +208,13 @@ class OLTCommandManager:
             self.favorites = FavoriteCommands()
 
             # Dados dos comandos
-            self.data_file = "olt_commands.json"
+            if hasattr(sys, "_MEIPASS"):
+                # Se estiver rodando como executável PyInstaller
+                exe_dir = os.path.dirname(sys.executable)
+                self.data_file = os.path.join(exe_dir, "olt_commands.json")
+            else:
+                # Se estiver rodando como script
+                self.data_file = "olt_commands.json"
             self.load_data()
 
             # Configuração do tema inicial antes de qualquer outra coisa
@@ -202,9 +222,15 @@ class OLTCommandManager:
             self.setup_theme()
 
             # Carregar preferências depois de inicializar o tema
-            self.config_file = os.path.join(
-                os.path.dirname(__file__), "config_file.json"
-            )
+            if hasattr(sys, "_MEIPASS"):
+                # Se estiver rodando como executável PyInstaller
+                exe_dir = os.path.dirname(sys.executable)
+                self.config_file = os.path.join(exe_dir, "config_file.json")
+            else:
+                # Se estiver rodando como script
+                self.config_file = os.path.join(
+                    os.path.dirname(__file__), "config_file.json"
+                )
             self.load_preferences()  # This will update theme_var if saved
 
             # Criar interface
@@ -230,30 +256,30 @@ class OLTCommandManager:
 
         self.themes = {
             "dark": {
-                "bg": "#1e1e2e",  # Fundo escuro
-                "bg_medium": "#2a2a3a",  # Cards
-                "bg_light": "#3a3a4a",  # Elementos destacados
-                "accent": "#5e81ac",  # Azul moderno
-                "accent_light": "#88c0d0",  # Azul claro
-                "text": "#e5e9f0",  # Texto claro
-                "text_disabled": "#7c818c",  # Texto desabilitado
-                "error": "#bf616a",  # Vermelho suave
-                "success": "#a3be8c",  # Verde suave
-                "warning": "#ebcb8b",  # Amarelo suave
-                "border": "#4c566a",  # Bordas
+                "bg": "#1a1a1a",  # Fundo escuro neutro
+                "bg_medium": "#2d2d2d",  # Cards neutros
+                "bg_light": "#404040",  # Elementos destacados neutros
+                "accent": "#6b7280",  # Cinza médio para destaques
+                "accent_light": "#9ca3af",  # Cinza claro
+                "text": "#f3f4f6",  # Texto claro neutro
+                "text_disabled": "#6b7280",  # Texto desabilitado neutro
+                "error": "#dc2626",  # Vermelho sutil
+                "success": "#059669",  # Verde sutil
+                "warning": "#d97706",  # Laranja sutil
+                "border": "#4b5563",  # Bordas neutras
             },
             "light": {
-                "bg": "#f0f2f5",  # Fundo claro
-                "bg_medium": "#ffffff",  # Cards
-                "bg_light": "#e6e9ef",  # Elementos destacados
-                "accent": "#4a6fa5",  # Azul moderno
-                "accent_light": "#6e9bcf",  # Azul claro
-                "text": "#2d3748",  # Texto escuro
-                "text_disabled": "#a0aec0",  # Texto desabilitado
-                "error": "#e53e3e",  # Vermelho
-                "success": "#38a169",  # Verde
-                "warning": "#dd6b20",  # Laranja
-                "border": "#e2e8f0",  # Bordas
+                "bg": "#f8fafc",  # Fundo muito claro neutro
+                "bg_medium": "#ffffff",  # Branco puro
+                "bg_light": "#f1f5f9",  # Cinza muito claro
+                "accent": "#64748b",  # Cinza azulado neutro
+                "accent_light": "#94a3b8",  # Cinza azulado claro
+                "text": "#334155",  # Cinza escuro para texto
+                "text_disabled": "#94a3b8",  # Cinza médio desabilitado
+                "error": "#dc2626",  # Vermelho sutil
+                "success": "#059669",  # Verde sutil
+                "warning": "#d97706",  # Laranja sutil
+                "border": "#e2e8f0",  # Bordas muito suaves
             },
         }
 
@@ -272,23 +298,23 @@ class OLTCommandManager:
                 ".",
                 background=theme["bg"],
                 foreground=theme["text"],
-                font=("Segoe UI", 10),
+                font=("Segoe UI", 9),
             )
 
-            # Frames
+            # Frames minimalistas
             style.configure("Modern.TFrame", background=theme["bg"])
             style.configure(
                 "Card.TFrame",
                 background=theme["bg_medium"],
-                borderwidth=1,
-                relief="solid",
-                bordercolor=theme["border"],
+                borderwidth=0,
+                relief="flat",
             )
 
-            # Labels
+
+            # Labels minimalistas
             style.configure(
                 "Modern.TLabel",
-                background=theme["bg_medium"],
+                background=theme["bg"],
                 foreground=theme["text"],
                 font=("Segoe UI", 9),
             )
@@ -296,22 +322,30 @@ class OLTCommandManager:
             style.configure(
                 "Title.TLabel",
                 background=theme["bg"],
-                foreground=theme["accent"],
-                font=("Segoe UI", 16, "bold"),
+                foreground=theme["text"],
+                font=("Segoe UI", 14, "bold"),
             )
 
             style.configure(
                 "Subtitle.TLabel",
-                background=theme["bg_medium"],
-                foreground=theme["accent_light"],
-                font=("Segoe UI", 12, "bold"),
+                background=theme["bg"],
+                foreground=theme["text"],
+                font=("Segoe UI", 11),
             )
 
-            # Botões
+            # Label específico para cards (fundo médio)
+            style.configure(
+                "Card.TLabel",
+                background=theme["bg_medium"],
+                foreground=theme["text"],
+                font=("Segoe UI", 11),
+            )
+
+            # Botões minimalistas
             style.configure(
                 "Modern.TButton",
-                background=theme["accent"],
-                foreground="#ffffff",
+                background=theme["bg"],
+                foreground=theme["text"],
                 borderwidth=0,
                 relief="flat",
                 font=("Segoe UI", 9),
@@ -320,10 +354,10 @@ class OLTCommandManager:
             style.map(
                 "Modern.TButton",
                 background=[
-                    ("active", theme["accent_light"]),
-                    ("pressed", theme["accent"]),
+                    ("active", theme["bg_medium"]),
+                    ("pressed", theme["bg_light"]),
                 ],
-                foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
+                foreground=[("active", theme["text"]), ("pressed", theme["text"])],
             )
 
             style.configure(
@@ -331,7 +365,8 @@ class OLTCommandManager:
                 background=theme["accent"],
                 foreground="#ffffff",
                 borderwidth=0,
-                font=("Segoe UI", 10, "bold"),
+                relief="flat",
+                font=("Segoe UI", 9, "bold"),
             )
 
             style.map(
@@ -342,14 +377,13 @@ class OLTCommandManager:
                 ],
             )
 
-            # Entradas
+            # Entradas minimalistas
             style.configure(
                 "TEntry",
-                fieldbackground=theme["bg_light"],
+                fieldbackground=theme["bg"],
                 foreground=theme["text"],
-                bordercolor=theme["border"],
-                lightcolor=theme["border"],
-                darkcolor=theme["border"],
+                borderwidth=0,
+                relief="flat",
             )
 
             style.configure(
@@ -358,13 +392,13 @@ class OLTCommandManager:
                 foreground=theme["text"],
             )
 
-            # Treeview
+            # Treeview minimalista
             style.configure(
                 "Modern.Treeview",
-                background=theme["bg_medium"],
+                background=theme["bg"],
                 foreground=theme["text"],
-                fieldbackground=theme["bg_medium"],
-                rowheight=32,
+                fieldbackground=theme["bg"],
+                rowheight=28,
                 borderwidth=0,
                 font=("Segoe UI", 9),
             )
@@ -389,27 +423,28 @@ class OLTCommandManager:
                 foreground=[("selected", "#ffffff")],
             )
 
-            # Notebook
+            # Notebook minimalista
             style.configure("TNotebook", background=theme["bg"], borderwidth=0)
             style.configure(
                 "TNotebook.Tab",
-                background=theme["bg_light"],
+                background=theme["bg"],
                 foreground=theme["text"],
-                padding=[15, 5],
-                font=("Segoe UI", 10),
+                padding=[12, 6],
+                font=("Segoe UI", 9),
+                borderwidth=0,
             )
 
             style.map(
                 "TNotebook.Tab",
                 background=[("selected", theme["bg_medium"])],
-                foreground=[("selected", theme["accent"])],
+                foreground=[("selected", theme["text"])],
             )
 
             # Configuração específica para Comboboxes
             style.configure(
                 "TCombobox",
-                fieldbackground=theme["bg_light"],
-                background=theme["bg_medium"],
+                fieldbackground=theme["bg"],
+                background=theme["bg"],
                 foreground=theme["text"],
                 arrowcolor=theme["text"],
                 selectbackground=theme["accent"],
@@ -418,10 +453,10 @@ class OLTCommandManager:
 
             style.map(
                 "TCombobox",
-                fieldbackground=[("readonly", theme["bg_light"])],
+                fieldbackground=[("readonly", theme["bg"])],
                 selectbackground=[("readonly", theme["accent"])],
                 selectforeground=[("readonly", "white")],
-                background=[("readonly", theme["bg_medium"])],
+                background=[("readonly", theme["bg"])],
                 foreground=[("readonly", theme["text"])],
             )
 
@@ -455,21 +490,25 @@ class OLTCommandManager:
             widgets.append(self.editor_text)
         if hasattr(self, "results_listbox") and self.results_listbox is not None:
             widgets.append(self.results_listbox)
+        # Atualizar PanedWindow se existir
+        if hasattr(self, "content_frame") and self.content_frame is not None:
+            try:
+                self.content_frame.configure(bg=theme["bg"])
+            except:
+                pass
 
         # Configura cada widget existente
         for widget in widgets:
             try:
                 widget.configure(
-                    bg=theme["bg_medium"],
+                    bg=theme["bg"],
                     fg=theme["text"],
-                    insertbackground=theme["accent"],
-                    selectbackground=theme["accent"] + "60",  # 60% de opacidade
-                    selectforeground=theme["text"],
+                    insertbackground=theme["text"],
+                    selectbackground=theme["accent"],
+                    selectforeground="white",
                     relief="flat",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightbackground=theme["border"],
-                    highlightcolor=theme["accent"],
+                    borderwidth=0,
+                    highlightthickness=0,
                 )
             except (tk.TclError, AttributeError):
                 continue  # Ignora erros de widgets que não suportam algumas propriedades
@@ -624,16 +663,16 @@ class OLTCommandManager:
         main_frame = ttk.Frame(self.root, style="Modern.TFrame")
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Cabeçalho com gradiente
-        header_frame = ttk.Frame(main_frame, style="Card.TFrame")
-        header_frame.pack(fill="x", pady=(0, 15))
+        # Cabeçalho minimalista
+        header_frame = ttk.Frame(main_frame, style="Modern.TFrame")
+        header_frame.pack(fill="x", pady=(0, 10))
 
         # Título com ícone
         title_frame = ttk.Frame(header_frame, style="Modern.TFrame")
         title_frame.pack(fill="x", padx=15, pady=10)
 
         ttk.Label(
-            title_frame, text="⚡ OLT Command Manager", style="Title.TLabel"
+            title_frame, text="OLT Command Manager", style="Title.TLabel"
         ).pack(side="left")
 
         # Controles de tema
@@ -657,21 +696,21 @@ class OLTCommandManager:
         notebook = ttk.Notebook(main_frame, style="TNotebook")
         notebook.pack(fill="both", expand=True)
 
-        # Abas com ícones
+        # Abas minimalistas
         self.tree_frame = ttk.Frame(notebook, style="Card.TFrame")
-        notebook.add(self.tree_frame, text="📂 Navegação")
+        notebook.add(self.tree_frame, text="Navegação")
         self.create_tree_interface()
 
         self.history_frame = ttk.Frame(notebook, style="Card.TFrame")
-        notebook.add(self.history_frame, text="🕒 Histórico")
+        notebook.add(self.history_frame, text="Histórico")
         self.create_history_interface()
 
         self.favorites_frame = ttk.Frame(notebook, style="Card.TFrame")
-        notebook.add(self.favorites_frame, text="⭐ Favoritos")
+        notebook.add(self.favorites_frame, text="Favoritos")
         self.create_favorites_interface()
 
         self.editor_frame = ttk.Frame(notebook, style="Card.TFrame")
-        notebook.add(self.editor_frame, text="✏️ Editor")
+        notebook.add(self.editor_frame, text="Editor")
         self.create_editor_interface()
 
     def create_tree_interface(self):
@@ -680,7 +719,7 @@ class OLTCommandManager:
         top_frame = ttk.Frame(self.tree_frame, style="Card.TFrame")
         top_frame.pack(fill="x", pady=(0, 10), padx=10)
 
-        ttk.Label(top_frame, text="Modelo da OLT:", style="Subtitle.TLabel").pack(
+        ttk.Label(top_frame, text="Modelo da OLT:", style="Card.TLabel").pack(
             side="left", padx=10, pady=10
         )
 
@@ -695,19 +734,24 @@ class OLTCommandManager:
         olt_combo.pack(side="left", padx=10, pady=10)
         olt_combo.bind("<<ComboboxSelected>>", self.on_olt_selected)
 
-        # Container flexível
-        content_frame = ttk.Frame(self.tree_frame, style="Modern.TFrame")
-        content_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+        # Container com painel divisível
+        self.content_frame = tk.PanedWindow(self.tree_frame, orient="horizontal", sashwidth=4, bg=self.themes[self.theme_var.get()]["bg"])
+        self.content_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
         # Painel esquerdo - Árvore de comandos
-        left_panel = ttk.LabelFrame(
-            content_frame, text=" Estrutura de Comandos ", style="Card.TFrame"
+        left_panel = ttk.Frame(
+            self.content_frame, style="Modern.TFrame"
         )
-        left_panel.pack(side="left", fill="both", expand=True, padx=(0, 5))
+        self.content_frame.add(left_panel)
+
+        # Título da seção esquerda
+        ttk.Label(left_panel, text="Estrutura de Comandos", style="Subtitle.TLabel").pack(
+            anchor="w", padx=5, pady=(5, 10)
+        )
 
         # Treeview com scrollbar integrada
         tree_container = ttk.Frame(left_panel, style="Modern.TFrame")
-        tree_container.pack(fill="both", expand=True, padx=5, pady=5)
+        tree_container.pack(fill="both", expand=True, padx=0, pady=(0, 5))
 
         self.tree = ttk.Treeview(tree_container, show="tree", style="Modern.Treeview")
         tree_scroll = ttk.Scrollbar(
@@ -720,14 +764,25 @@ class OLTCommandManager:
         self.tree.bind("<<TreeviewSelect>>", self.on_tree_select)
 
         # Painel direito - Detalhes do comando
-        right_panel = ttk.LabelFrame(
-            content_frame, text=" Comando Selecionado ", style="Card.TFrame"
+        right_panel = ttk.Frame(
+            self.content_frame, style="Modern.TFrame"
         )
-        right_panel.pack(side="right", fill="both", expand=True, padx=(5, 0))
+        self.content_frame.add(right_panel)
+
+        # Configurar evento para salvar posição da barra lateral
+        self.content_frame.bind("<<SashMoved>>", self.save_sidebar_position)
+
+        # Definir largura inicial do painel esquerdo (ajustável pelo usuário)
+        self.root.update_idletasks()  # Forçar atualização para calcular tamanhos
+
+        # Título da seção direita
+        ttk.Label(right_panel, text="Comando Selecionado", style="Subtitle.TLabel").pack(
+            anchor="w", padx=5, pady=(5, 10)
+        )
 
         # Área de comando com destaque
-        cmd_frame = ttk.Frame(right_panel, style="Card.TFrame")
-        cmd_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        cmd_frame = ttk.Frame(right_panel, style="Modern.TFrame")
+        cmd_frame.pack(fill="both", expand=True, padx=5, pady=(0, 5))
 
         self.command_text = scrolledtext.ScrolledText(
             cmd_frame, height=8, wrap="word", font=("Consolas", 10)
@@ -735,13 +790,18 @@ class OLTCommandManager:
         self.command_text.pack(fill="both", expand=True)
 
         # Frame para parâmetros
-        params_container = ttk.LabelFrame(
-            right_panel, text=" Parâmetros ", style="Card.TFrame"
+        params_container = ttk.Frame(
+            right_panel, style="Modern.TFrame"
         )
         params_container.pack(fill="x", padx=10, pady=(0, 10))
 
+        # Título da seção de parâmetros
+        ttk.Label(params_container, text="Parâmetros", style="Modern.TLabel").pack(
+            anchor="w", padx=5, pady=(5, 0)
+        )
+
         self.params_frame = ttk.Frame(params_container, style="Modern.TFrame")
-        self.params_frame.pack(fill="x", padx=5, pady=5)
+        self.params_frame.pack(fill="x", padx=5, pady=(5, 5))
 
         # Frame para validação
         self.validation_frame = ttk.Frame(params_container, style="Modern.TFrame")
@@ -756,33 +816,30 @@ class OLTCommandManager:
 
         ttk.Button(
             btn_left,
-            text="📋 Copiar",
+            text="Copiar",
             command=self.copy_command,
             style="Accent.TButton",
         ).pack(side="left", padx=2)
 
         ttk.Button(
             btn_left,
-            text="⭐ Favorito",
-            command=self.add_to_favorites,
-            style="Modern.TButton",
-        ).pack(side="left", padx=2)
-
-        btn_right = ttk.Frame(btn_frame, style="Modern.TFrame")
-        btn_right.pack(side="right")
-
-        ttk.Button(
-            btn_right,
-            text="❓ Ajuda",
-            command=self.show_documentation,
-            style="Modern.TButton",
-        ).pack(side="left", padx=2)
-
-        ttk.Button(
-            btn_right,
-            text="✓ Validar",
+            text="Validar",
             command=self.validate_current_command,
-            style="Modern.TButton",
+            style="Accent.TButton",
+        ).pack(side="left", padx=2)
+
+        ttk.Button(
+            btn_left,
+            text="Favoritar",
+            command=self.add_to_favorites,
+            style="Accent.TButton",
+        ).pack(side="left", padx=2)
+
+        ttk.Button(
+            btn_left,
+            text="Ajuda",
+            command=self.show_documentation,
+            style="Accent.TButton",
         ).pack(side="left", padx=2)
 
     def show_documentation(self):
@@ -817,7 +874,7 @@ class OLTCommandManager:
                         self.validation_frame,
                         text=f"⚠️ {errors[0]}",
                         style="Error.TLabel",
-                        foreground="#ff6b6b",
+                        foreground=self.themes[self.theme_var.get()]["error"],
                     )
                     label.pack(anchor="w", pady=2)
                     return
@@ -839,7 +896,7 @@ class OLTCommandManager:
                     self.validation_frame,
                     text=f"⚠️ {error}",
                     style="Error.TLabel",
-                    foreground="#ff6b6b",
+                    foreground=self.themes[self.theme_var.get()]["error"],
                 )
                 label.pack(anchor="w", pady=2)
         else:
@@ -853,10 +910,10 @@ class OLTCommandManager:
 
     def create_editor_interface(self):
         """Criar interface do editor de comandos"""
-        editor_top = ttk.Frame(self.editor_frame, style="Card.TFrame")
+        editor_top = ttk.Frame(self.editor_frame, style="Modern.TFrame")
         editor_top.pack(fill="x", pady=(0, 10), padx=5)
 
-        ttk.Label(editor_top, text="✏️ Editor de Comandos", style="Title.TLabel").pack(
+        ttk.Label(editor_top, text="Editor de Comandos", style="Title.TLabel").pack(
             pady=10
         )
 
@@ -864,20 +921,20 @@ class OLTCommandManager:
         btn_frame = ttk.Frame(editor_top, style="Modern.TFrame")
         btn_frame.pack(pady=10)
 
-        ttk.Button(btn_frame, text="💾 Salvar Alterações", command=self.save_data).pack(
+        ttk.Button(btn_frame, text="Salvar Alterações", command=self.save_data).pack(
             side="left", padx=5
         )
         ttk.Button(
             btn_frame,
-            text="🔄 Recarregar",
+            text="Recarregar",
             command=lambda: self.load_editor_data(show_message=True),
         ).pack(side="left", padx=5)
         ttk.Button(
-            btn_frame, text="📁 Abrir Arquivo JSON", command=self.open_json_file
+            btn_frame, text="Abrir Arquivo JSON", command=self.open_json_file
         ).pack(side="left", padx=5)
 
         # Área de edição
-        editor_text_frame = ttk.Frame(self.editor_frame, style="Card.TFrame")
+        editor_text_frame = ttk.Frame(self.editor_frame, style="Modern.TFrame")
         editor_text_frame.pack(fill="both", expand=True, padx=5)
 
         ttk.Label(
@@ -889,10 +946,13 @@ class OLTCommandManager:
         self.editor_text = scrolledtext.ScrolledText(
             editor_text_frame,
             wrap="word",
-            bg="#2d2d2d",
-            fg="#ffffff",
-            insertbackground="white",
+            bg=self.themes[self.theme_var.get()]["bg"],
+            fg=self.themes[self.theme_var.get()]["text"],
+            insertbackground=self.themes[self.theme_var.get()]["text"],
             font=("Consolas", 9),
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=0,
         )
         self.editor_text.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
@@ -915,7 +975,7 @@ class OLTCommandManager:
         olt_data = self.data["olts"][olt_name]
 
         for category, cat_data in olt_data["categories"].items():
-            cat_id = self.tree.insert("", "end", text=f"📁 {category}", open=True)
+            cat_id = self.tree.insert("", "end", text=category, open=True)
             self.populate_tree_recursive(cat_id, cat_data)
 
     def populate_tree_recursive(self, parent, data):
@@ -924,11 +984,11 @@ class OLTCommandManager:
             for key, value in data.items():
                 if isinstance(value, dict):
                     folder_id = self.tree.insert(
-                        parent, "end", text=f"📁 {key}", open=False
+                        parent, "end", text=key, open=False
                     )
                     self.populate_tree_recursive(folder_id, value)
                 else:
-                    self.tree.insert(parent, "end", text=f"⚡ {key}", values=(value,))
+                    self.tree.insert(parent, "end", text=key, values=(value,))
         else:
             self.tree.insert(parent, "end", text=f"⚡ {data}", values=(data,))
 
@@ -968,9 +1028,6 @@ class OLTCommandManager:
         # Encontrar parâmetros no comando
         params = re.findall(r"\{(\w+)\}", command)
         if params:
-            ttk.Label(
-                self.params_frame, text="Parâmetros:", style="Modern.TLabel"
-            ).pack(anchor="w", pady=(5, 0))
 
             self.param_entries = {}
             unique_params = set(params)
@@ -1113,7 +1170,7 @@ class OLTCommandManager:
         # Título
         ttk.Label(
             main_frame,
-            text="🔧 Conversor para remoção em lote - ZTE Ullyses",
+            text="Conversor para remoção em lote - ZTE Ullyses",
             style="Title.TLabel",
         ).pack(pady=(0, 20))
 
@@ -1122,7 +1179,7 @@ class OLTCommandManager:
         example_frame.pack(fill="x", pady=(0, 20))
 
         ttk.Label(
-            example_frame, text="Exemplo de entrada:", style="Subtitle.TLabel"
+            example_frame, text="Exemplo de entrada:", style="Card.TLabel"
         ).pack(anchor="w", padx=15, pady=(10, 5))
 
         example_text = "gpon-onu_1/2/6:3\ngpon-onu_1/5/5:33\ngpon-onu_1/5/6:12"
@@ -1143,7 +1200,7 @@ class OLTCommandManager:
         left_panel.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
         ttk.Label(
-            left_panel, text="📥 Cole as ONUs aqui:", style="Subtitle.TLabel"
+            left_panel, text="Cole as ONUs aqui:", style="Subtitle.TLabel"
         ).pack(anchor="w", padx=15, pady=(10, 5))
 
         input_text = scrolledtext.ScrolledText(
@@ -1156,7 +1213,7 @@ class OLTCommandManager:
         right_panel.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
         ttk.Label(
-            right_panel, text="📤 Comandos convertidos:", style="Subtitle.TLabel"
+            right_panel, text="Comandos convertidos:", style="Subtitle.TLabel"
         ).pack(anchor="w", padx=15, pady=(10, 5))
 
         output_text = scrolledtext.ScrolledText(
@@ -1210,13 +1267,13 @@ class OLTCommandManager:
 
         # Botões
         ttk.Button(
-            btn_frame, text="🔄 Converter", command=convert_onus, style="Accent.TButton"
+            btn_frame, text="Converter", command=convert_onus, style="Accent.TButton"
         ).pack(side="left", padx=5)
         ttk.Button(
-            btn_frame, text="📋 Copiar", command=copy_output, style="Modern.TButton"
+            btn_frame, text="Copiar", command=copy_output, style="Modern.TButton"
         ).pack(side="left", padx=5)
         ttk.Button(
-            btn_frame, text="🗑️ Limpar", command=clear_all, style="Modern.TButton"
+            btn_frame, text="Limpar", command=clear_all, style="Modern.TButton"
         ).pack(side="left", padx=5)
 
         # Converter automaticamente quando digitar
@@ -1361,8 +1418,8 @@ class OLTCommandManager:
     def create_history_interface(self):
         """Criar interface do histórico de comandos"""
         # Frame principal
-        frame = ttk.Frame(self.history_frame, style="Card.TFrame")
-        frame.pack(fill="both", expand=True, padx=10, pady=10)
+        frame = ttk.Frame(self.history_frame, style="Modern.TFrame")
+        frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         # Frame superior com título e botões
         top_frame = ttk.Frame(frame, style="Modern.TFrame")
@@ -1379,20 +1436,20 @@ class OLTCommandManager:
 
         ttk.Button(
             btn_frame,
-            text="📋 Copiar Comando",
+            text="Copiar Comando",
             command=self.copy_history_command,
             style="Accent.TButton",
         ).pack(side="left", padx=2)
 
         ttk.Button(
             btn_frame,
-            text="🗑️ Limpar Histórico",
+            text="Limpar Histórico",
             command=self.clear_history,
             style="Modern.TButton",
         ).pack(side="left", padx=2)
 
         # Frame para a lista
-        list_frame = ttk.Frame(frame, style="Card.TFrame")
+        list_frame = ttk.Frame(frame, style="Modern.TFrame")
         list_frame.pack(fill="both", expand=True)
 
         # Lista de histórico com suporte a múltiplas linhas
@@ -1447,8 +1504,8 @@ class OLTCommandManager:
     def create_favorites_interface(self):
         """Criar interface dos comandos favoritos"""
         # Frame principal
-        frame = ttk.Frame(self.favorites_frame, style="Card.TFrame")
-        frame.pack(fill="both", expand=True, padx=10, pady=10)
+        frame = ttk.Frame(self.favorites_frame, style="Modern.TFrame")
+        frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         # Frame superior com título e botões
         top_frame = ttk.Frame(frame, style="Modern.TFrame")
@@ -1465,27 +1522,27 @@ class OLTCommandManager:
 
         ttk.Button(
             btn_frame,
-            text="📋 Copiar Comando",
+            text="Copiar Comando",
             command=self.copy_favorite_command,
             style="Accent.TButton",
         ).pack(side="left", padx=2)
 
         ttk.Button(
             btn_frame,
-            text="➕ Adicionar",
+            text="Adicionar",
             command=self.add_to_favorites,
             style="Modern.TButton",
         ).pack(side="left", padx=2)
 
         ttk.Button(
             btn_frame,
-            text="➖ Remover",
+            text="Remover",
             command=self.remove_from_favorites,
             style="Modern.TButton",
         ).pack(side="left", padx=2)
 
         # Container frame para a lista
-        list_container = ttk.Frame(frame, style="Card.TFrame")
+        list_container = ttk.Frame(frame, style="Modern.TFrame")
         list_container.pack(fill="both", expand=True)
 
         # Lista de favoritos com suporte a múltiplas linhas
@@ -1661,8 +1718,7 @@ class OLTCommandManager:
         path = []
         while item:
             text = self.tree.item(item)["text"]
-            if text.startswith("📁 "):
-                path.insert(0, text[2:])
+            path.insert(0, text)
             item = self.tree.parent(item)
 
         return " > ".join(path) if path else "Geral"
@@ -1712,10 +1768,9 @@ class OLTCommandManager:
                         not hasattr(self, "params_frame")
                         or not self.params_frame.winfo_exists()
                     ):
-                        self.params_frame = ttk.LabelFrame(
+                        self.params_frame = ttk.Frame(
                             self.favorites_frame,
-                            text="Parâmetros",
-                            style="Card.TLabelframe",
+                            style="Modern.TFrame",
                         )
                         self.params_frame.pack(fill="x", padx=10, pady=(0, 10))
                         self.param_entries = {}
@@ -1894,7 +1949,7 @@ class OLTCommandManager:
                     self.validation_frame,
                     text=f"⚠️ {error}",
                     style="Error.TLabel",
-                    foreground="#ff6b6b",
+                    foreground=self.themes[self.theme_var.get()]["error"],
                 )
                 label.pack(anchor="w", pady=2)
         else:
@@ -1904,7 +1959,7 @@ class OLTCommandManager:
                     self.validation_frame,
                     text="✅ Parâmetros válidos",
                     style="Modern.TLabel",
-                    foreground="#51cf66",
+                    foreground=self.themes[self.theme_var.get()]["success"],
                 )
                 label.pack(anchor="w", pady=2)
 
@@ -2011,7 +2066,7 @@ class OLTCommandManager:
                         self.validation_frame,
                         text=f"⚠️ {error}",
                         style="Error.TLabel",
-                        foreground="#ff6b6b",
+                        foreground=self.themes[self.theme_var.get()]["error"],
                     )
                     label.pack(anchor="w", pady=2)
 
@@ -2041,7 +2096,7 @@ class OLTCommandManager:
                         self.validation_frame,
                         text=f"⚠️ {error}",
                         style="Error.TLabel",
-                        foreground="#ff6b6b",
+                        foreground=self.themes[self.theme_var.get()]["error"],
                     )
                     label.pack(anchor="w", pady=2)
 
@@ -2072,7 +2127,10 @@ class OLTCommandManager:
             if theme not in ["light", "dark"]:
                 theme = "light"
 
-            preferences = {"theme": theme, "window_position": geometry}
+            # Get current sidebar position
+            sidebar_position = self.get_sidebar_position()
+
+            preferences = {"theme": theme, "window_position": geometry, "sidebar_position": sidebar_position}
 
             # Ensure config directory exists
             config_dir = os.path.dirname(self.config_file)
@@ -2085,6 +2143,34 @@ class OLTCommandManager:
 
         except Exception as e:
             print(f"Error saving preferences: {e}")
+
+    def save_sidebar_position(self, event=None):
+        """Salvar posição da barra lateral quando movida"""
+        try:
+            self.root.after(500, self.save_preferences)  # Salvar após 500ms para evitar salvamentos excessivos
+        except Exception as e:
+            print(f"Error scheduling sidebar position save: {e}")
+
+    def get_sidebar_position(self):
+        """Obter posição atual da barra lateral"""
+        try:
+            if hasattr(self, 'content_frame') and self.content_frame.winfo_exists():
+                # Para tk.PanedWindow, podemos obter a posição da sash
+                sash_pos = self.content_frame.sash_coord(0)
+                if sash_pos:
+                    return sash_pos[0]  # Retorna a coordenada X da sash
+        except Exception as e:
+            print(f"Error getting sidebar position: {e}")
+        return None
+
+    def set_sidebar_position(self, position):
+        """Definir posição da barra lateral"""
+        try:
+            if hasattr(self, 'content_frame') and self.content_frame.winfo_exists() and position is not None:
+                # Para tk.PanedWindow, podemos definir a posição da sash
+                self.content_frame.sash_place(0, position, 0)
+        except Exception as e:
+            print(f"Error setting sidebar position: {e}")
 
     def load_preferences(self):
         """Carregar preferências de tema e posição da janela"""
@@ -2125,8 +2211,17 @@ class OLTCommandManager:
                 except:
                     self.root.geometry(default_geometry)
 
+                # Set sidebar position
+                sidebar_position = preferences.get("sidebar_position")
+                if sidebar_position is not None:
+                    self.sidebar_position_to_restore = sidebar_position
+
                 # Apply theme after geometry is set
                 self.apply_theme()
+
+                # Restore sidebar position after theme is applied
+                if hasattr(self, 'sidebar_position_to_restore'):
+                    self.root.after(100, lambda: self.set_sidebar_position(self.sidebar_position_to_restore))
         except Exception as e:
             print(f"Error loading preferences: {e}")
             # Set defaults

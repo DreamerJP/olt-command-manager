@@ -1,32 +1,17 @@
-# OLT Command Manager - Python Requirements
-# 
-# Este projeto usa principalmente bibliotecas padrão do Python
-# As seguintes dependências são necessárias apenas para desenvolvimento e build
+# OLT Command Manager - Dependências
+# Execute: pip install -r requirements.txt
 
-# Dependências principais (todas incluídas no Python padrão)
-# tkinter - Interface gráfica (incluído no Python)
-# json - Manipulação de JSON (incluído no Python)
-# re - Expressões regulares (incluído no Python)
-# os - Operações do sistema (incluído no Python)
-# datetime - Manipulação de datas (incluído no Python)
-# textwrap - Formatação de texto (incluído no Python)
+# Interface gráfica (já incluído no Python padrão)
+# tkinter - GUI framework
 
-# Dependências opcionais para desenvolvimento
-# Descomente se necessário para desenvolvimento avançado
+# Dependências principais
+pyperclip>=1.8.2        # Melhor suporte para clipboard
+pillow>=9.0.0           # Para ícones e imagens
+psutil>=5.9.0           # Informações do sistema
+ttkthemes>=3.2.2        # Temas adicionais para tkinter
+darkdetect>=0.7.1       # Detectar tema do sistema
+appdirs>=1.4.4          # Gerenciamento de diretórios da aplicação
 
-# pyinstaller>=4.0        # Para criar executáveis
-# cx-Freeze>=6.0          # Alternativa ao PyInstaller
-# auto-py-to-exe>=2.0     # Interface gráfica para PyInstaller
-
-# Ferramentas de desenvolvimento
-# black>=21.0             # Formatação de código
-# flake8>=3.8             # Análise de código
-# pylint>=2.6             # Análise estática
-# pytest>=6.0            # Testes unitários
-
-# Documentação
-# sphinx>=4.0             # Geração de documentação
-# sphinx-rtd-theme>=0.5   # Tema da documentação
-
-# NOTA: Este projeto foi desenvolvido para ser executado com Python puro
-# sem dependências externas para facilitar a distribuição e instalação.
+# Validação e documentação
+jsonschema>=4.17.3      # Validação de JSON
+markdown>=3.4.3         # Renderização de documentação

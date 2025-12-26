@@ -6,8 +6,11 @@
         "Gerenciamento de ONU": {
           "Consultar ONU": {
             "Por Serial Number": "show gpon onu by sn {sn}",
-            "Detalhes da ONU": "show gpon onu detail-info gpon-olt_{slot}/{porta}/{pon} {id}",
-            "Estado das ONUs": "show gpon onu state gpon-olt_{slot}/{porta}/{pon}"
+            "Detalhes da ONU": "show gpon onu detail-info gpon_olt-{slot}/{porta}/{pon} {id}",
+            "Estado das ONUs": "show gpon onu state gpon_olt-{slot}/{porta}/{pon}",
+            "MAC da ONU": "show gpon onu mac gpon_olt-{slot}/{porta}/{pon} {id}",
+            "Status PON": "show interface gpon_olt-{slot}/{porta}/{pon}",
+            "Config da PON": "show running-config interface gpon_olt-{slot}/{porta}/{pon}"
           },
           "Remover ONU": {
             "Por ID": "configure terminal\ninterface gpon_olt-{slot}/{porta}/{pon}\nno onu {id}\nexit\nexit",
@@ -22,15 +25,28 @@
         },
         "Diagnóstico": {
           "Informações Ópticas": {
-            "Info óptica PON": "show gpon optical-info gpon-olt_{slot}/{porta}/{pon}",
-            "Níveis ópticos ONU": "show gpon onu optical-info gpon-olt_{slot}/{porta}/{pon} {id}"
-          }
+            "Info óptica PON": "show gpon optical-info gpon_olt-{slot}/{porta}/{pon}",
+            "Níveis ópticos ONU": "show gpon onu optical-info gpon_olt-{slot}/{porta}/{pon} {id}",
+            "Distância ONU": "show gpon onu distance gpon_olt-{slot}/{porta}/{pon} {id}"
+          },
+          "Estatísticas": {
+            "Tráfego PON": "show pon onu statistics gpon_olt-{slot}/{porta}/{pon}",
+            "Tráfego ONU específica": "show pon onu statistics gpon-onu_{slot}/{porta}/{pon}:{id}",
+            "Histórico ONU": "show gpon onu history gpon_olt-{slot}/{porta}/{pon} {id}"
+          },
+          "Alarmes": "show alarm active"
         },
         "Sistema": {
           "Informações Gerais": {
             "Versão sistema": "show version",
             "Lista interfaces": "show interface brief",
             "Arquivos firmware": "dir /datadisk0/LR0/onuver/"
+          },
+          "Navegação": {
+            "Modo privilegiado": "enable",
+            "Modo configuração": "configure terminal",
+            "Interface GPON": "interface gpon_olt-{slot}/{porta}/{pon}",
+            "Sair": "exit"
           }
         }
       }
@@ -73,29 +89,45 @@
       "categories": {
         "Gerenciamento de ONU": {
           "Consultar ONU": {
-            "Resumo PON": "display ont info summary {slot}/{porta}/{pon}",
+            "Resumo PON": "display ont info summary",
             "Por Serial Number": "display ont info by-sn {sn}",
-            "Informações detalhadas": "display ont info {slot}/{porta}/{pon} {id}",
-            "Versão firmware": "display ont version {slot}/{porta}/{pon} {id}"
+            "Informações detalhadas": "display ont info {slot} {porta} {pon} {id}",
+            "Versão firmware": "display ont version {slot} {porta} {pon} {id}"
           },
           "Remover ONU": {
             "Verificar service-ports": "display service-port port {slot}/{porta}/{pon} ont {id}",
-            "Remover service-port": "config\nundo service-port {index}",
-            "Excluir ONU": "config\ninterface gpon {slot}/{porta}\nont delete {pon} {id}\nquit\nquit\nsave"
+            "Remover service-port": [
+              "config",
+              "undo service-port {index}"
+            ],
+            "Excluir ONU": [
+              "config",
+              "interface gpon {slot}/{porta}",
+              "ont delete {pon} {id}",
+              "quit",
+              "quit",
+              "save"
+            ]
           },
-          "Reiniciar ONU": "ont reset {slot}/{porta}/{pon} {id}"
+          "Reiniciar ONU": "ont reset {slot} {porta} {pon} {id}"
         },
         "Diagnóstico": {
-          "Informações Ópticas": "display ont optical-info {slot}/{porta}/{pon} {id}",
-          "Estado portas": "display ont port state {slot}/{porta}/{pon} {id}",
-          "Alarmes ONU": "display ont alarm {slot}/{porta}/{pon} {id}"
+          "Informações Ópticas": {
+            "Potência óptica ONU": "display ont info {slot} {porta} {pon} {id}"
+          }
         },
         "Sistema": {
+          "Informações Gerais": {
+            "Versão sistema": "display version",
+            "Lista interfaces": "display interface brief",
+            "Configuração atual": "display current-configuration"
+          },
           "Navegação": {
             "Modo privilegiado": "enable",
-            "Modo configuração": "configure terminal",
-            "Interface GPON": "interface gpon {slot}/{porta}",
-            "Sair": "quit"
+            "Modo configuração": "config",
+            "Interface GPON": "interface gpon {slot} {porta}",
+            "Sair nível atual": "quit",
+            "Salvar configuração": "save"
           }
         }
       }
@@ -106,7 +138,7 @@
         "Gerenciamento de ONU": {
           "Consultar ONU": {
             "ONUs Online": "cd gpononu\nshow online slot {slot} link {link}",
-            "Estado da ONU específica": "cd gpononu\nshow onu_state slot {slot} link {link} onu número: {onu}",
+            "Estado da ONU específica": "cd gpononu\nshow onu_state slot {slot} link {link} onu {onu}",
             "ONUs não autorizadas": "cd gpononu\nshow unauth list",
             "Por Serial Number (Physical ID)": "cd gpononu\nshow onu-authinfo phy-id {sn}",
             "Por ID Lógico": "cd gpononu\nshow onu-authinfo log-id {logical_id}",
@@ -133,9 +165,7 @@
         "Sistema": {
           "Navegação": {
             "Modo Admin": "enable",
-            "Modo User": "exit",
             "Voltar ao menu anterior": " cd ..",
-            "Voltar ao diretório raiz": "cd",
             "Limpar tela": "clear",
             "Listar comandos": "list",
             "Ajuda": "help",
