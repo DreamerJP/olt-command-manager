@@ -64,6 +64,29 @@ class CommandDocumentation:
             "auth_failed": "Falha na autenticação - Verifique se a ONU está autorizada",
         }
 
+        self.olt_specific_tips = {
+            "Huawei MA5800 Araquari": [
+                "🔑 Importante: Execute 'enable' primeiro para entrar no modo privilegiado",
+                "📝 Após 'enable', você pode executar comandos de configuração",
+                "💡 Use 'save' para salvar alterações de configuração"
+            ],
+            "ZTE Z600 Itaum": [
+                "🔑 Execute 'enable' para modo privilegiado antes de configurações",
+                "📝 Use 'configure terminal' para entrar no modo de configuração",
+                "⚠️ Verifique sempre os comandos disponíveis antes de alterar configurações"
+            ],
+            "ZTE C300 Ullyses": [
+                "🔑 Execute 'enable' para modo privilegiado",
+                "📝 Use 'config' para configurações",
+                "💡 Use 'save' para salvar alterações de configuração"
+            ],
+            "Fiberhome AN5516": [
+                "🔑 Execute 'enable' para modo admin",
+                "📝 Use 'cd' para navegar entre módulos",
+                "💡 Execute 'save' para salvar configurações"
+            ]
+        }
+
     def get_param_help(self, param):
         """Obter ajuda para um parâmetro específico"""
         return self.docs.get(param.lower(), "Sem documentação disponível")
@@ -77,6 +100,10 @@ class CommandDocumentation:
 
     def get_common_issues(self, command):
         """Obter problemas comuns relacionados ao comando"""
+
+    def get_olt_tips(self, olt_name):
+        """Obter dicas específicas para uma OLT"""
+        return self.olt_specific_tips.get(olt_name, [])
         issues = []
         if "show" in command and "onu" in command:
             issues.append(self.common_issues["sn_not_found"])
@@ -188,7 +215,7 @@ class FavoriteCommands:
 class OLTCommandManager:
     def __init__(self, root):
         self.root = root
-        self.root.title("OLT Command Manager v1.5")
+        self.root.title("OLT Command Manager v1.6")
         self.root.geometry("1200x800")
 
         try:
@@ -517,7 +544,7 @@ class OLTCommandManager:
         """Carregar dados dos comandos"""
         default_data = {
             "olts": {
-                "ZTE Z600": {
+                "ZTE Z600 Itaum": {
                     "description": "OLT ZTE ITAUM ZXA10 C600",
                     "categories": {
                         "Gerenciamento de ONU": {
@@ -548,7 +575,7 @@ class OLTCommandManager:
                         },
                     },
                 },
-                "ZTE C300": {
+                "ZTE C300 Ullyses": {
                     "description": "OLT ZTE ULLYSES",
                     "categories": {
                         "Gerenciamento de ONU": {
@@ -580,7 +607,7 @@ class OLTCommandManager:
                         },
                     },
                 },
-                "Huawei MA5800": {
+                "Huawei MA5800 Araquari": {
                     "description": "OLT HUAWEI ARAQUARI",
                     "categories": {
                         "Gerenciamento de ONU": {
@@ -596,7 +623,7 @@ class OLTCommandManager:
                                 "Remover service-port": "config\nundo service-port {index}",
                                 "Excluir ONU": "config\ninterface gpon {slot}/{porta}\nont delete {pon} {id}\nquit\nquit\nsave",
                             },
-                            "Reiniciar ONU": "ont reset {slot}/{porta}/{pon} {id}",
+                            "Reiniciar ONU": "ont reset {slot} {porta} {pon} {id}",
                         },
                         "Diagnóstico": {
                             "Informações Ópticas": "display ont optical-info {slot}/{porta}/{pon} {id}",
@@ -724,10 +751,18 @@ class OLTCommandManager:
         )
 
         self.olt_var = tk.StringVar()
+
+        # Obter lista de modelos disponíveis
+        self.available_olts = list(self.data["olts"].keys())
+
+        # Definir o primeiro modelo disponível como padrão se houver algum
+        if self.available_olts:
+            self.olt_var.set(self.available_olts[0])
+
         olt_combo = ttk.Combobox(
             top_frame,
             textvariable=self.olt_var,
-            values=list(self.data["olts"].keys()),
+            values=self.available_olts,
             state="readonly",
             width=25,
         )
@@ -764,10 +799,10 @@ class OLTCommandManager:
         self.tree.bind("<<TreeviewSelect>>", self.on_tree_select)
 
         # Painel direito - Detalhes do comando
-        right_panel = ttk.Frame(
+        self.right_panel = ttk.Frame(
             self.content_frame, style="Modern.TFrame"
         )
-        self.content_frame.add(right_panel)
+        self.content_frame.add(self.right_panel)
 
         # Configurar evento para salvar posição da barra lateral
         self.content_frame.bind("<<SashMoved>>", self.save_sidebar_position)
@@ -776,12 +811,12 @@ class OLTCommandManager:
         self.root.update_idletasks()  # Forçar atualização para calcular tamanhos
 
         # Título da seção direita
-        ttk.Label(right_panel, text="Comando Selecionado", style="Subtitle.TLabel").pack(
+        ttk.Label(self.right_panel, text="Comando Selecionado", style="Subtitle.TLabel").pack(
             anchor="w", padx=5, pady=(5, 10)
         )
 
         # Área de comando com destaque
-        cmd_frame = ttk.Frame(right_panel, style="Modern.TFrame")
+        cmd_frame = ttk.Frame(self.right_panel, style="Modern.TFrame")
         cmd_frame.pack(fill="both", expand=True, padx=5, pady=(0, 5))
 
         self.command_text = scrolledtext.ScrolledText(
@@ -789,11 +824,13 @@ class OLTCommandManager:
         )
         self.command_text.pack(fill="both", expand=True)
 
-        # Frame para parâmetros
-        params_container = ttk.Frame(
-            right_panel, style="Modern.TFrame"
-        )
-        params_container.pack(fill="x", padx=10, pady=(0, 10))
+        # Container para parâmetros e dicas lado a lado
+        params_tips_container = ttk.Frame(self.right_panel, style="Modern.TFrame")
+        params_tips_container.pack(fill="x", padx=10, pady=(0, 10))
+
+        # Frame para parâmetros (lado esquerdo)
+        params_container = ttk.Frame(params_tips_container, style="Modern.TFrame")
+        params_container.pack(side="left", fill="both", expand=True, padx=(0, 5))
 
         # Título da seção de parâmetros
         ttk.Label(params_container, text="Parâmetros", style="Modern.TLabel").pack(
@@ -807,8 +844,12 @@ class OLTCommandManager:
         self.validation_frame = ttk.Frame(params_container, style="Modern.TFrame")
         self.validation_frame.pack(fill="x", pady=(0, 5), padx=5)
 
+        # Frame para dicas da OLT (lado direito)
+        self.tips_frame = ttk.Frame(params_tips_container, style="Modern.TFrame")
+        self.tips_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
+
         # Botões de ação
-        btn_frame = ttk.Frame(right_panel, style="Modern.TFrame")
+        btn_frame = ttk.Frame(self.right_panel, style="Modern.TFrame")
         btn_frame.pack(fill="x", padx=10, pady=(0, 10))
 
         btn_left = ttk.Frame(btn_frame, style="Modern.TFrame")
@@ -841,6 +882,10 @@ class OLTCommandManager:
             command=self.show_documentation,
             style="Accent.TButton",
         ).pack(side="left", padx=2)
+
+        # Inicializar com o primeiro modelo selecionado após todos os componentes serem criados
+        if self.available_olts:
+            self.on_olt_selected()
 
     def show_documentation(self):
         """Mostrar janela de documentação"""
@@ -964,6 +1009,46 @@ class OLTCommandManager:
         selected_olt = self.olt_var.get()
         if selected_olt:
             self.populate_tree(selected_olt)
+            self.update_olt_tips(selected_olt)
+
+    def update_olt_tips(self, olt_name):
+        """Atualizar dicas específicas da OLT"""
+        # Limpar dicas anteriores
+        for widget in self.tips_frame.winfo_children():
+            widget.destroy()
+
+        # Obter dicas da OLT
+        tips = self.documentation.get_olt_tips(olt_name)
+
+        if tips:
+            # Container principal centralizado verticalmente
+            main_container = ttk.Frame(self.tips_frame, style="TFrame")
+            main_container.pack(fill="both", expand=True, padx=5, pady=5)
+
+            # Título das dicas
+            ttk.Label(
+                main_container,
+                text="ℹ️ Dicas da OLT:",
+                style="Modern.TLabel",
+                font=("Segoe UI", 8, "italic"),
+                foreground="gray"
+            ).pack(anchor="w", pady=(0, 3))
+
+            # Container para as dicas sem quebra de linha
+            tips_container = ttk.Frame(main_container, style="TFrame")
+            tips_container.pack(fill="both", expand=True)
+
+            # Mostrar cada dica sem quebra de linha
+            for tip in tips:
+                tip_label = ttk.Label(
+                    tips_container,
+                    text=f"• {tip}",
+                    style="Modern.TLabel",
+                    font=("Segoe UI", 8),
+                    foreground="gray60",
+                    anchor="w"
+                )
+                tip_label.pack(fill="x", pady=1)
 
     def populate_tree(self, olt_name):
         """Popular a árvore com os comandos da OLT selecionada"""
@@ -988,6 +1073,9 @@ class OLTCommandManager:
                     )
                     self.populate_tree_recursive(folder_id, value)
                 else:
+                    # Se o valor é uma lista, juntar com quebras de linha
+                    if isinstance(value, list):
+                        value = '\n'.join(value)
                     self.tree.insert(parent, "end", text=key, values=(value,))
         else:
             self.tree.insert(parent, "end", text=f"⚡ {data}", values=(data,))
@@ -1014,6 +1102,12 @@ class OLTCommandManager:
             return
 
         self.command_text.delete(1.0, tk.END)
+
+        # Se o comando é uma lista (array), juntar com quebras de linha
+        if isinstance(command, list):
+            command = '\n'.join(command)
+
+        # Inserir comando (multilinha ou simples)
         self.command_text.insert(tk.END, command)
 
         # Atualizar o status de favorito na interface (sem adicionar ícone ao texto)
