@@ -4,8 +4,17 @@
       "description": "OLT ZTE ITAUM ZXA10 C600",
       "categories": {
         "Gerenciamento de ONU": {
+          "Adicionar ONU": {
+            "_dica": "Na ZTE Z600, o perfil (profile-id) deve existir previamente na OLT. Use 'show gpon onu by sn {sn}' antes para confirmar que a ONU está batendo na PON correta.",
+            "1. Verificar ONU não autorizada": "show gpon onu by sn {sn}",
+            "2. Verificar IDs usados na PON": "show gpon onu state gpon_olt-{slot}/{porta}/{pon}",
+            "3. Adicionar ONU completo": "configure terminal\ninterface gpon_olt-{slot}/{porta}/{pon}\nonu {id} type {tipo} sn {sn}\nonu {id} vport-mode manual\nonu {id} tcont 1 profile-id {profile}\nonu {id} service-port 1 vport 1 user-vlan {vlan} transparent\nexit\ninterface gpon_iphost-{slot}/{porta}/{pon}:{id}.1\nexit\nexit",
+            "4. Salvar": "write",
+            "_aviso": "O campo {tipo} é o modelo da ONU (ex: F600, ZTE-F660). Use 'show gpon onu uncfg gpon_olt-{slot}/{porta}/{pon}' para ver ONUs aguardando autorização com seus tipos detectados automaticamente."
+          },
           "Consultar ONU": {
             "Por Serial Number": "show gpon onu by sn {sn}",
+            "ONUs aguardando autorização": "show gpon onu uncfg gpon_olt-{slot}/{porta}/{pon}",
             "Detalhes da ONU": "show gpon onu detail-info gpon_olt-{slot}/{porta}/{pon} {id}",
             "Estado das ONUs": "show gpon onu state gpon_olt-{slot}/{porta}/{pon}",
             "MAC da ONU": "show gpon onu mac gpon_olt-{slot}/{porta}/{pon} {id}",
@@ -55,8 +64,17 @@
       "description": "OLT ZTE ULLYSES",
       "categories": {
         "Gerenciamento de ONU": {
+          "Adicionar ONU": {
+            "_dica": "Na ZTE C300, a interface usa gpon-olt_ (com hífen e underline), diferente da Z600 que usa gpon_olt- (underline e hífen). Atenção ao digitar.",
+            "1. Verificar ONU não autorizada": "show gpon onu uncfg gpon-olt_{slot}/{porta}/{pon}",
+            "2. Verificar IDs usados na PON": "show gpon onu state gpon-olt_{slot}/{porta}/{pon}",
+            "3. Adicionar ONU completo": "configure terminal\ninterface gpon-olt_{slot}/{porta}/{pon}\nonu {id} type {tipo} sn {sn}\nonu {id} vport-mode manual\nonu {id} tcont 1 profile-id {profile}\nonu {id} service-port 1 vport 1 user-vlan {vlan} transparent\nexit\nexit",
+            "4. Salvar": "write",
+            "_aviso": "O {id} deve ser um número livre na PON. Use o passo 2 para verificar quais IDs já estão em uso antes de adicionar."
+          },
           "Consultar ONU": {
             "Por Serial Number": "show gpon onu by sn {sn}",
+            "ONUs aguardando autorização": "show gpon onu uncfg gpon-olt_{slot}/{porta}/{pon}",
             "Detalhes da ONU": "show gpon onu detail-info gpon-olt_{slot}/{porta}/{pon}",
             "MAC da ONU": "show gpon onu mac gpon-olt_{slot}/{porta}/{pon} {id}",
             "Status PON": "show interface gpon-olt_{slot}/{porta}/{pon}",
@@ -88,6 +106,17 @@
       "description": "OLT HUAWEI ARAQUARI",
       "categories": {
         "Gerenciamento de ONU": {
+          "Adicionar ONU": {
+            "_dica": "Na Huawei MA5800, o comando 'interface gpon' usa apenas frame/slot (ex: 0/2). A porta PON entra separada nos comandos seguintes. Os perfis lineprofile e srvprofile normalmente seguem o número da VLAN nessa OLT (ex: VLAN 613 = perfil 613). Confirme os perfis disponíveis antes.",
+            "1. Verificar perfis disponíveis": "display ont-lineprofile gpon all",
+            "2. Verificar ONU batendo na PON": "display ont autofind all",
+            "3. Verificar IDs usados na PON": "display ont info summary {frame}/{slot}/{pon}",
+            "4. Adicionar ONU completo": "enable\nconfig\ninterface gpon {frame}/{slot}\nont add {pon} {id} sn-auth {sn} omci ont-lineprofile-id {perfil} ont-srvprofile-id {perfil} desc {nome}\nquit\nservice-port vlan {vlan} gpon {frame}/{slot}/{pon} ont {id} gemport 1 multi-service user-vlan {vlan} tag-transform translate\nsave",
+            "_aviso_perfil": "Se der erro 'The line profile does not exist', o perfil 48 não existe nessa OLT. Use o passo 1 para listar os perfis reais e substitua pelo número correto.",
+            "_aviso_id": "O {id} deve ser o próximo número livre na PON. Use o passo 3 para verificar. Se o IXC tentar usar o ID 0 e ele já estiver ocupado, a autorização vai falhar.",
+            "_aviso_ixc": "Após subir manualmente, atualize o campo 'ONU número' no IXC com o {id} usado antes de clicar em Autorizar ONU novamente.",
+            "5. Verificar se subiu": "display ont info by-sn {sn}"
+          },
           "Consultar ONU": {
             "Resumo PON": "display ont info summary",
             "Por Serial Number": "display ont info by-sn {sn}",
@@ -136,6 +165,15 @@
       "description": "OLT FIBERHOME AN5516 (Sistema VR3.2)",
       "categories": {
         "Gerenciamento de ONU": {
+          "Adicionar ONU": {
+            "_dica": "Na Fiberhome AN5516, a autorização é feita via whitelist. O sistema usa navegação por diretórios (cd gpononu). O {sn} é o Physical ID da ONU, normalmente no formato FHTT+8caracteres.",
+            "1. Verificar ONU não autorizada": "cd gpononu\nshow unauth list",
+            "2. Adicionar ONU à whitelist": "enable\ncd gpononu\nset whitelist phy_addr address {sn} password null action add slot {slot} link {pon} onu {id}",
+            "3. Configurar serviço da ONU": "set onu-type slot {slot} link {pon} onu {id} onutype {tipo}\nset service slot {slot} link {pon} onu {id} service-index 1 vlan {vlan} cos 0 type unicast",
+            "4. Salvar": "cd\nsave",
+            "_aviso": "O {tipo} da ONU deve ser cadastrado previamente na OLT. Use 'show onu-type list' para ver os tipos disponíveis. O {id} deve ser um número livre no link (PON).",
+            "5. Verificar se subiu": "cd gpononu\nshow onu_state slot {slot} link {pon} onu {id}"
+          },
           "Consultar ONU": {
             "ONUs Online": "cd gpononu\nshow online slot {slot} link {link}",
             "Estado da ONU específica": "cd gpononu\nshow onu_state slot {slot} link {link} onu {onu}",
@@ -165,7 +203,7 @@
         "Sistema": {
           "Navegação": {
             "Modo Admin": "enable",
-            "Voltar ao menu anterior": " cd ..",
+            "Voltar ao menu anterior": "cd ..",
             "Limpar tela": "clear",
             "Listar comandos": "list",
             "Ajuda": "help",
